@@ -1,0 +1,5 @@
+linker planned to be used for :
+
+linking vehicle ( rope them ) ( i need to learn how rope physic work or copy tc slave code )
+linking machines or something idk 
+link migrant to work or something idk

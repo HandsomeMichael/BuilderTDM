@@ -1,0 +1,35 @@
+Basic class plan :
+
+You have 10 seconds delay upon changing class
+there is a tiny bit of difference between class
+can someone sprite icon for me or something
+
+Builder ( a normal class , perfect for ratting ) :
+
+- use pickaxe
+- look very chad
+
+high material gain
+normal speed movement
+normal health
++ fast drilling
+
+Engineer ( a tanky class , perfect for blocking up trapper ) :
+
+- use big hammer
+- black clothing
+
+medium material gain
+very slow movement
+huge health
++ stronk damag
+
+Trap Master ( a hostile class , perfect for aggresive player ) :
+
+- use a fucking stick
+- less clothed
+
+low material gain
+very fast movement
+very fragile health
++ efficient trap block usage
