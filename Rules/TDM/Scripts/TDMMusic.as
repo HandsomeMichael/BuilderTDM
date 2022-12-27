@@ -90,8 +90,8 @@ void GameMusicLogic(CBlob@ this, CMixer@ mixer)
 
 	// stop boss music
 	if (boss is null) {
+		if (mixer.isPlaying(boss_lordebison)) mixer.FadeOut(boss_lordebison,1.0f);
 	}
-
 	if (boss !is null) {
 		if (boss.getName() == "lordebison") {
 
@@ -114,7 +114,7 @@ void GameMusicLogic(CBlob@ this, CMixer@ mixer)
 	{
 		if (mixer.getPlayingCount() == 0)
 		{
-			mixer.FadeInRandom(world_battle , 0.0f);
+			mixer.FadeInRandom(world_battle , 1.0f);
 		}
 	}
 	else

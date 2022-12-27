@@ -17,18 +17,19 @@ void onInit(CSprite@ this)
 }
 
 // for debugging
-void onRender(CSprite@ this) {
+// void onRender(CSprite@ this) {
 
-	CBlob@ b = this.getBlob();
-	if (b is null) return;
+// 	CBlob@ b = this.getBlob();
+// 	if (b is null) return;
 
-	string text = "state = "+b.get_u8(state_property);
-	text += "\ntarget = "+b.get_netid(target_property);
-	text += "\ndelay = "+b.get_u8(delay_property);
+// 	string text = "state = "+b.get_u8(state_property);
+// 	text += "\ntarget = "+b.get_netid(target_property);
+// 	text += "\ndelay = "+b.get_u8(delay_property);
+// 	text += "\nanimation = "+this.animation.name;
 
-	GUI::SetFont("SNES");
-	GUI::DrawTextCentered(text, b.getInterpolatedScreenPos(), SColor(255,255,255,255));
-}
+// 	GUI::SetFont("SNES");
+// 	GUI::DrawTextCentered(text, b.getInterpolatedScreenPos(), SColor(255,255,255,255));
+// }
 
 void onTick(CSprite@ this)
 {	
@@ -40,9 +41,17 @@ void onTick(CSprite@ this)
 	{
 		// walking animation
 		u8 state = blob.get_u8(state_property);
-		if (state == STATE_IDLE || state == STATE_TARGET) {
+
+		if (state == STATE_TARGET) {
 			f32 x = blob.getVelocity().x;
 			this.SetAnimation(((Maths::Abs(x) > 0.2f) ? "walk" : "idle"));
+		}
+		else if (state == STATE_SPAWNED) {
+			if (!this.isAnimation("awoken"))this.SetAnimation("awoken");
+		}
+		else if (state == STATE_TELEPORT) 
+		{
+			this.SetAnimation("teleport");
 		}
 	}
 	else
@@ -64,7 +73,7 @@ void onInit(CBlob@ this)
 
 	//for shape
 	this.getShape().SetRotationsAllowed(false);
-	//this.getShape().SetOffset(Vec2f(0, 6));
+	this.getShape().SetOffset(Vec2f(0, 12));
 
 	this.set_f32("gib health", -0.0f); //for flesh hit
 	this.set_u8("number of steaks", 9); //for steaks
@@ -91,6 +100,12 @@ void ShootSpike(CBlob@ this , Vec2f velocity) {
 	}
 }
 
+// check bison spawning or teleport
+bool IsSpawning(CBlob@ this) {
+	u8 state = this.get_u8(state_property);
+	return state == STATE_SPAWNED || state == STATE_TELEPORT;
+}
+
 void onTick(CBlob@ this)
 {
 	// untag blob 
@@ -99,6 +114,18 @@ void onTick(CBlob@ this)
 	// do nothing when spawned
 	u8 state = this.get_u8(state_property);
 	if (state == STATE_SPAWNED) return;
+
+	// teleport state
+	if (state == STATE_TELEPORT) 
+	{
+		u32 teleport_time = this.get_u32("teleport_time");
+
+		if (getGameTime() >= teleport_time) 
+		{
+			this.setPosition(this.get_Vec2f("teleport_target"));
+			this.set_u8(state_property,STATE_SPAWNED);
+		}
+	}
 
 	// shooting spikes each 30 ticks when targetting
 	if (state == STATE_TARGET) {
@@ -134,24 +161,26 @@ void MadAt(CBlob@ this, CBlob@ hitterBlob)
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
 	// no damage on spawn
-	u8 state = this.get_u8(state_property);
-	if (state == STATE_SPAWNED) return 0.0f;
+	if (IsSpawning(this)) return 0.0f;
 
 	ScriptBoss_BossHit(this);
 	MadAt(this, hitterBlob);
+
 	return damage;
 }
 
-bool doesCollideWithBlob(CBlob@ this, CBlob@ blob){return !blob.hasTag("dead");}
+bool doesCollideWithBlob(CBlob@ this, CBlob@ blob) 
+{
+	// no collison on spawn
+	if (IsSpawning(this)) return false;
+	return !blob.hasTag("dead");
+}
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1)
 {
 	// do nothing on spawning animation
-	u8 state = this.get_u8(state_property);
-	if (state == STATE_SPAWNED) return;
-
-	if (blob is null)
-		return;
+	if (blob is null)return;
+	if (IsSpawning(this)) return;
 
 	if (blob.hasTag("flesh"))
 	{

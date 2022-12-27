@@ -10,14 +10,15 @@
 // - teleport to player when its too far off
 // - ignore player that is invincible to prevent spawn killing
 // - basic targetting stuff idk
+// - no fancy pathfinding
 
-enum state
-{
-	STATE_IDLE = 0, // search prey each tick, maybe add more delay on this
-	STATE_TARGET,  	// go to the target and smack em, if the target is too far then teleport to it
-	STATE_SPAWNED, 	// do nothing
-	STATE_TELEPORT 	// do teleport animation
-}
+// states
+const u8 STATE_SPAWNED = 0;	// do nothing
+const u8 STATE_IDLE = 1; 	// search prey each tick, maybe add more delay on this
+const u8 STATE_TARGET = 2;  // go to the target and smack em, if the target is too far then teleport to it
+const u8 STATE_TELEPORT = 3;		// the most important state
+
+const f32 TELEPORT_DISTANCE = 120.0f; // teleport distance
 
 void onInit(CBrain@ this)
 {
@@ -66,82 +67,57 @@ void onTick(CBrain@ this)
 
 void AI(CBlob@ blob) 
 {
-	Vec2f pos = blob.getPosition();
-	bool facing_left = blob.isFacingLeft();
-	u8 mode = blob.get_u8(state_property);
+	// states
+	u8 STATE = blob.get_u8(state_property);
 
-	// "blind" attacking
-	if (mode == STATE_TARGET)
+	// first state , wait for few ticks
+	if (STATE == STATE_SPAWNED) {
+		if (blob.getTickSinceCreated() > 60) {
+			STATE = STATE_IDLE;
+		}
+	}
+	// idle state , find nearest flesh blob
+	else if (STATE == STATE_IDLE){
+		if (FindFlesh(blob)) {
+			STATE = STATE_TARGET;
+		}
+	}
+	// target state , hunt the freeman
+	else if (STATE == STATE_TARGET)
 	{
 		// never lose its target
 		CBlob@ target = getBlobByNetworkID(blob.get_netid(target_property));
-		if (target is null){mode = STATE_IDLE;}
+		if (target is null) 
+		{
+			STATE = STATE_IDLE;
+		}
 		else
 		{
 			Vec2f tpos = target.getPosition();
 
-
-			if ((tpos - pos).getLength() >= (targetSearchRadius))
+			// if the target is too far then teleport to it
+			if (blob.getDistanceTo(target) > TELEPORT_DISTANCE) 
 			{
-				mode = STATE_IDLE;
+				blob.set_u32("teleport_time",getGameTime() + 30); // will teleport after few ticks
+				blob.set_Vec2f("teleport_target",target.getPosition());
+				STATE = STATE_TELEPORT;
 			}
+			else {
+				// go to the target
+				Vec2f pos = blob.getPosition();
 
-			blob.setKeyPressed((tpos.x < pos.x) ? key_left : key_right, true);
+				blob.setKeyPressed((tpos.x < pos.x) ? key_left : key_right, true);
 
-			// if (personality & DONT_GO_DOWN_BIT == 0 || (blob.isOnGround() && tpos.y <= pos.y + 3 * blob.getRadius()))
-			// {
-			// 	blob.setKeyPressed((tpos.y < pos.y) ? key_up : key_down, true);
-			// }
-		}
-	}
-	// 
-	else 
-	{
-		// find nearest flesh blob
-		if (mode == STATE_SPAWNED) {
-			if (blob.getTickSinceCreated() > 70) {
-				mode = STATE_IDLE;
-			}
-		}
-		else {
-			if (FindFlesh(blob)) {
-				mode = STATE_TARGET;
-			}
-		}
-
-		if (blob.getTickSinceCreated() > 30) // delay so we dont get false terriroty pos
-		{
-			Vec2f territory_pos = blob.get_Vec2f(terr_pos_property);
-
-			Vec2f territory_dir = (territory_pos - pos);
-			////("territory " + territory_pos.x + " " + territory_pos.y );
-			//	printf("territory_dir " + territory_dir.Length() + " " + territoryRadius  );
-			if (territory_dir.Length() > territoryRadius && !blob.hasAttached())
-			{
-				//head towards territory
-
-				blob.setKeyPressed((territory_dir.x < 0.0f) ? key_left : key_right, true);
-				blob.setKeyPressed((territory_dir.y > 0.0f) ? key_down : key_up, true);
-			}
-			else
-			{
-				//change direction at random or when on wall
-
-				if (XORRandom(randomMoveFreq) == 0 || blob.isOnWall())
+				if (blob.isOnGround() && tpos.y <= pos.y + 3 * blob.getRadius())
 				{
-					blob.setKeyPressed(blob.wasKeyPressed(key_right) ? key_left : key_right, true);
-				}
-
-				if (XORRandom(randomMoveFreq) == 0 || blob.isOnCeiling() || blob.isOnGround())
-				{
-					blob.setKeyPressed(blob.wasKeyPressed(key_down) ? key_down : key_down, true);
+					blob.setKeyPressed((tpos.y < pos.y) ? key_up : key_down, true);
 				}
 			}
 		}
-
 	}
 
-	blob.set_u8(state_property, mode);
+	// reset state
+	blob.set_u8(state_property, STATE);
 }
 
 
@@ -151,9 +127,11 @@ bool FindFlesh(CBlob@ blob) {
 
 	// set up stuff
 	CBlob@[] blobs;
-	uint targetIndex = -1;
+	int targetIndex = -1;
 	float shortestDistance = 0.0f;
-	blob.getMap().getBlobsInRadius(blob.getPosition(), targetSearchRadius, @blobs);
+
+	if (!getBlobsByTag("player", blobs)) return false;
+	//blob.getMap().getBlobsInRadius(blob.getPosition(), TELEPORT_DISTANCE*10.0f, @blobs);
 
 	// loop
 	for (uint step = 0; step < blobs.length; ++step)
@@ -162,10 +140,14 @@ bool FindFlesh(CBlob@ blob) {
 		if (other is null || other is blob) continue; // ignore null and self
 		if (other.hasTag("flesh")) // check if it has flesh
 		{
+			print("found candidate : "+other.getNetworkID());
 			// calculate distance using kag built in method
 			float curDistance = blob.getDistanceTo(other);
 			// check if distance is shorter or first index
 			if (targetIndex == -1 || shortestDistance < curDistance) {
+
+				print("set candidate : "+other.getNetworkID() + " or "+step);
+
 				targetIndex = step;
 				shortestDistance = curDistance;
 			}
@@ -173,10 +155,13 @@ bool FindFlesh(CBlob@ blob) {
 	}
 
 	// attack nearest flesh blob
-	if (targetIndex > -1) {
+	if (targetIndex != -1) {
 		blob.set_netid(target_property, blobs[targetIndex].getNetworkID());
+		print("target found");
 		return true;
 	}
+
+	print("target not found");
 
 	return false;
 }

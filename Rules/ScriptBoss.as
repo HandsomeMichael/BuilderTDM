@@ -4,7 +4,6 @@
 
 // for linear interpolating purpose
 float healthBarLerp = 0.0f;
-bool checkIfSomehowTheBlobIsNullOhGodIHateThis = false;
 
 // get boss that's still alive
 CBlob@ ScriptBoss_GetBossAlive(CRules@ this) {
@@ -103,15 +102,14 @@ void ScriptBoss_RenderBossUI(CRules@ this,CPlayer@ player) {
 }
 
 // reset boss follow time
-void _ResetFollowTime(CRules@ rules, bool checkNull = true) {
-
+void _ResetFollowTime(CRules@ rules, bool checkNull = true) 
+{
 	rules.set_u32("bossFollowTime",0);
-	checkIfSomehowTheBlobIsNullOhGodIHateThis = checkNull;
-
-	print("reset follow time");
 }
 
 // handle boss camera
+bool oneTickUnfollowBlob = false;
+
 void onTick(CRules@ this) 
 {
 	// check existance
@@ -130,32 +128,13 @@ void onTick(CRules@ this)
 		// if blob not found then we reset follow time
 		if (blob is null) {_ResetFollowTime(this);}
 		else {camera.setTarget(blob);}
+
+		oneTickUnfollowBlob = true;
 	}
-	else {
+	else if (oneTickUnfollowBlob) {
 		// we reset follow time if the time passed
-		_ResetFollowTime(this);
-
 		camera.setTarget(getLocalPlayer().getBlob());
-
-		// just point the camera at the blob until it found a localplayerblob
-		// CBlob@ localBlob = getLocalPlayer().getBlob();
-		// if (localBlob !is null) {
-		// 	camera.setTarget(getLocalPlayer().getBlob());
-		// }
+		oneTickUnfollowBlob = false;
 	}
 
-	// repeatedly check for null camera target since kag only set target once player respawned
-	// if (checkIfSomehowTheBlobIsNullOhGodIHateThis) 
-	// {
-	// 	CBlob@ target = camera.getTarget();
-	// 	if (target is null) 
-	// 	{
-	// 		CBlob@ localBlob = getLocalPlayer().getBlob();
-	// 		if (localBlob !is null) 
-	// 		{
-	// 			_ResetFollowTime(this,false);
-	// 			camera.setTarget(localPlayerBlob);
-	// 		}
-	// 	}
-	// }
 }
