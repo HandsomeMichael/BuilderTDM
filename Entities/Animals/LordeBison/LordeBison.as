@@ -120,9 +120,15 @@ void onTick(CBlob@ this)
 	{
 		u32 teleport_time = this.get_u32("teleport_time");
 
-		if (getGameTime() >= teleport_time) 
+		if (teleport_time == 0) {
+			this.set_u32("teleport_time",getGameTime() + 30); // will teleport after few ticks
+			this.getSprite().PlaySound("DisgustingFleshIn.ogg");
+		}
+		else if (getGameTime() >= teleport_time) 
 		{
 			this.setPosition(this.get_Vec2f("teleport_target"));
+			this.getSprite().PlaySound("DisgustingFleshOut.ogg");
+			this.set_u32("teleport_time",0);
 			this.set_u8(state_property,STATE_SPAWNED);
 		}
 	}

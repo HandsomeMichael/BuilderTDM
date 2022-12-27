@@ -98,7 +98,6 @@ void AI(CBlob@ blob)
 			// if the target is too far then teleport to it
 			if (blob.getDistanceTo(target) > TELEPORT_DISTANCE) 
 			{
-				blob.set_u32("teleport_time",getGameTime() + 30); // will teleport after few ticks
 				blob.set_Vec2f("teleport_target",target.getPosition());
 				STATE = STATE_TELEPORT;
 			}
