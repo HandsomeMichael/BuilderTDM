@@ -62,12 +62,13 @@ void HandleArmor(CBlob@ this) {
 				this.getSprite().RemoveSpriteLayer("armorlayer");
 			}
 		}
+		return;
 	}
 
 	// we break armor 
-	if (this.get_u8("armorDamage") > 10.0f) {
+	if (this.get_f32("armorDamage") > 10.0f) {
 		this.Untag("armored");
-		this.set_f32("armorDamage",0);
+		this.set_f32("armorDamage",0.0f);
 		this.getSprite().PlaySound("MinecraftBreak.ogg");
 		return;
 	}

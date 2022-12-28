@@ -7,8 +7,7 @@
 #include "StandardControlsCommon.as"
 #include "RespawnCommandCommon.as"
 #include "GenericButtonCommon.as"
-#include "MakeCrate.as"
-
+#include "RestockCommon.as"
 
 void onInit(CBlob@ this)
 {
@@ -28,7 +27,6 @@ void onInit(CBlob@ this)
 	this.getShape().getConsts().mapCollisions = false;
 
 	this.addCommandID("class menu");
-	this.addCommandID("getsupply");
 
 	this.Tag("change class drop inventory");
 	this.set_u32("drop_mats",getGameTime() + 60);
@@ -45,70 +43,30 @@ void onTick(CBlob@ this)
 	{
 		if (isClient() && this.getTeamNum() == getLocalPlayer().getTeamNum())
 		{	
-			client_AddToChat("Restock material dropped at spawn", SColor(255, 255, 0, 0));
+			client_AddToChat("Restock material dropped at spawn");
 		}
 
 		if (!isServer()) return; /////////////////////////////////// SERVER ONLY
 
-		CBlob@ crate = server_MakeCrate("", "", 0, this.getTeamNum(), this.getPosition());
+		// add tags for waiting and unpacking
+		this.Tag("wait");
 
-		if (crate !is null)
-		{
-			// add tags for waiting and unpacking
-			this.Tag("wait");
-			crate.set_u16("ruinsID",this.getNetworkID());
-			crate.Tag("unpackall");
-
-			// wood mats
-			for (uint i = 0; i < 2; i++){
-				CBlob@ mat = server_CreateBlob("mat_wood");
-				if (mat !is null){crate.server_PutInInventory(mat);}
-			}
-			// stone mats
-			for (uint i = 0; i < 1; i++){
-				CBlob@ mat = server_CreateBlob("mat_stone");
-				if (mat !is null){crate.server_PutInInventory(mat);}
-			}
-			// gold mats
-			CBlob@ gold = server_CreateBlob("mat_gold");
-			if (gold !is null){crate.server_PutInInventory(gold);}
-
-			// add crate material logo
-			CSprite@ sprite = crate.getSprite();
-			CSpriteLayer@ logo = sprite.addSpriteLayer("logo", "Materials.png" , 16, 16, this.getTeamNum(), this.getSkinNum());
-			if (logo !is null){
-				Animation@ anim = logo.addAnimation("default", 0, false);
-				anim.AddFrame(26);
-				logo.SetOffset( sprite.getOffset() + Vec2f(12.0f, -12.0f) );
-				logo.SetRelativeZ(2);
-			}
-		}
+		CreateRestock(this,
+		this.getPosition(), // pos
+		1500, // delay
+		XORRandom(250) + 250 , // wood count
+		XORRandom(125) + 125, // stone count
+		XORRandom(25) + 10, // gold count
+		false); // parachute
 	}
 }
 
 // render timeleft for restock
-void onRender(CSprite@ this)
-{
-	CBlob@ b = this.getBlob();
-	u32 time = ( b.get_u32("drop_mats") - getGameTime() ) / 60;
-	string text = ""+time + " second left for Restock";
-
-	// wait
-	if (b.hasTag("wait")) {
-		text = "Wait for crate to unbox ...";
-	}
-
-	// is there a way to draw big and epic text ?
-	GUI::SetFont("SNES");
-	GUI::DrawTextCentered(text, b.getInterpolatedScreenPos(), SColor(255,255,255,255));
-}
+void onRender(CSprite@ this){RenderTimeLeft(this);}
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 {
-	if (cmd == this.getCommandID("getsupply")) {
-
-	}
-	else if (cmd == this.getCommandID("class menu"))
+	if (cmd == this.getCommandID("class menu"))
 	{
 		u16 callerID = params.read_u16();
 		CBlob@ caller = getBlobByNetworkID(callerID);

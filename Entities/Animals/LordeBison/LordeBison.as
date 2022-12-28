@@ -5,6 +5,7 @@
 #include "AnimalConsts.as"; // reference state_property
 #include "LordeBisonBrain.as"; // reference state enum
 #include "ScriptBoss.as"; // setting boss
+#include "TDMMusicCommon.as"; // setting boss music
 #include "Hitters.as";
 #include "Utils.as"; // math stuff
 
@@ -77,6 +78,7 @@ void onInit(CBlob@ this)
 
 	this.set_f32("gib health", -0.0f); //for flesh hit
 	this.set_u8("number of steaks", 9); //for steaks
+	this.set_u8("musicID",boss_lordebison); // for music
 
 	// required tags
 	this.Tag("flesh");
