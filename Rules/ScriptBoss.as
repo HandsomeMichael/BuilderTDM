@@ -40,6 +40,9 @@ void ScriptBoss_Effects(CRules@ this,CBlob@ blob) {
 	}
 
 	// do some darkening idk
+
+	// TO DO : get a life , make money , go outside
+
 	Driver@ driver = getDriver();
 	effectLerp = Maths::Lerp(effectLerp,100.0f,0.1f);
 	Vec2f screenSize(driver.getScreenWidth(), driver.getScreenHeight());
