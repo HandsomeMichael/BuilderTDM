@@ -72,16 +72,46 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob){
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob) { return false; }
 
+void DumpOutItems(CBlob@ this, float pop_out_speed = 5.0f)
+{
+	// get inventory
+	CInventory@ inv = this.getInventory();
+	if (inv is null) return;
+
+	// play sound
+	if (isClient()){
+		if (inv.getItemsCount() > 0) this.getSprite().PlaySound("give.ogg");
+	}
+
+	// do actual math here
+	if (isServer())
+	{
+		// loop over every item , i have a trauma when using while loop so i use for loops
+		for(u8 i = 0; i < inv.getItemsCount(); i++)
+		{
+			// get item
+			CBlob@ item = inv.getItem(i);
+			if (item is null) continue;
+
+			// put them out
+			this.server_PutOutInventory(item);
+			float magnitude = (1 - XORRandom(3) * 0.25) * pop_out_speed;
+			item.setVelocity(this.getOldVelocity() + getRandomVelocity(90, magnitude, 45));
+		}
+	}
+}
+
 void onDie(CBlob@ this)
 {
 	HideParachute(this);
 	ResetRestockerTimer(this);
+	DumpOutItems(this);
 
 	this.getSprite().Gib();
 	Vec2f pos = this.getPosition();
 	Vec2f vel = this.getVelocity();
 
-	//custom gibs
+	// NO WAY !!??!! custom gibs
 	string fname = CFileMatcher("/Crate.png").getFirst();
 	for (int i = 0; i < 4; i++)
 	{

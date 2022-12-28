@@ -28,33 +28,35 @@ void ScriptBoss_SetBoss(CBlob@ blob , int time) {
 	getRules().set_u32("bossFollowTime",getGameTime() + time);
 }
 
+// draw some darkening effects
+float effectLerp = 0.0f;
+
+void ScriptBoss_Effects(CRules@ this,CBlob@ blob) {
+
+	// reset if null
+	if (blob is null) {
+		effectLerp = 0.0f;
+		return;
+	}
+
+	// do some darkening idk
+	Driver@ driver = getDriver();
+	effectLerp = Maths::Lerp(effectLerp,100.0f,0.1f);
+	Vec2f screenSize(driver.getScreenWidth(), driver.getScreenHeight());
+	GUI::DrawRectangle(Vec2f(0, 0), screenSize, SColor(Maths::Round(effectLerp), 255, 8, 0));
+}
+
 // reset ui property
 void ResetHealthBar() {
 	healthBarLerp = 0.0f;
 }
 
 // draw boss ui healthbar and other stuff
-
 float healthBarLerp = 0.0f; // for linear interpolating purpose
 bool oneTickHit = false; // for health bar shake
 
-void ScriptBoss_RenderBossUI(CRules@ this,CPlayer@ player) {
-
-	// check existance
-	if (!this.exists("bossNetID")) {
-		ResetHealthBar();
-		return;
-	}
-
-	// get net id
-	u32 bossNetID = this.get_netid("bossNetID");
-	if (bossNetID < 1) {
-		ResetHealthBar();
-		return;
-	}
-
-	// getblob
-	CBlob@ blob = getBlobByNetworkID(bossNetID);
+void ScriptBoss_RenderBossUI(CRules@ this,CBlob@ blob) {
+	// reset if null
 	if (blob is null) {
 		ResetHealthBar();
 		return;

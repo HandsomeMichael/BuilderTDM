@@ -21,6 +21,7 @@ void onRender(CRules@ this)
 		return;
 
 	CPlayer@ p = getLocalPlayer();
+	CBlob@ boss = ScriptBoss_GetBossAlive(this);
 
 	if (p is null || !p.isMyPlayer()) { return; }
 
@@ -94,7 +95,6 @@ void onRender(CRules@ this)
 					kills = getTranslatedString("SUDDEN DEATH");
 
 					// tell them to kill the boss, work together to defeat the evil
-					CBlob@ boss = ScriptBoss_GetBossAlive(this);
 					if (boss !is null) {
 						kills = "KILL THE "+boss.getInventoryName().toUpper();
 					}
@@ -130,5 +130,6 @@ void onRender(CRules@ this)
 	}
 
 	// render boss health bar and such
-	ScriptBoss_RenderBossUI(this,p);
+	ScriptBoss_Effects(this,boss);
+	ScriptBoss_RenderBossUI(this,boss);
 }
