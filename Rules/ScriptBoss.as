@@ -2,9 +2,6 @@
 
 // Boss UI and boss camera management
 
-// for linear interpolating purpose
-float healthBarLerp = 0.0f;
-
 // get boss that's still alive
 CBlob@ ScriptBoss_GetBossAlive(CRules@ this) {
 
@@ -22,13 +19,6 @@ CBlob@ ScriptBoss_GetBossAlive(CRules@ this) {
 	return null;
 }
 
-// set boss hit
-void ScriptBoss_BossHit(CBlob@ this) 
-{
-	this.Tag("justGotHit");
-	//this.set_bool("bossGotHit",true);
-}
-
 // set current boss
 void ScriptBoss_SetBoss(CBlob@ blob , int time) {
 
@@ -44,6 +34,10 @@ void ResetHealthBar() {
 }
 
 // draw boss ui healthbar and other stuff
+
+float healthBarLerp = 0.0f; // for linear interpolating purpose
+bool oneTickHit = false; // for health bar shake
+
 void ScriptBoss_RenderBossUI(CRules@ this,CPlayer@ player) {
 
 	// check existance
@@ -75,7 +69,17 @@ void ScriptBoss_RenderBossUI(CRules@ this,CPlayer@ player) {
 
 		// draw terraria bar
 		healthBarLerp = Maths::Lerp(healthBarLerp,perc,0.1f);
-		GUI::DrawIcon("BossHealthBar.png", (blob.hasTag("justGotHit") ? 2 : 1), Vec2f(137,24), topLeft, healthBarLerp, 1.0f, SColor(255,255,255,255));
+
+		if ((healthBarLerp > perc) && oneTickHit) {
+			// screen shake for only one tick
+			topLeft += Vec2f(XORRandom(6) - 3, XORRandom(6) - 3);
+			oneTickHit = false;
+		}
+		else {
+			oneTickHit = true;
+		}
+
+		GUI::DrawIcon("BossHealthBar.png", ((healthBarLerp > perc) ? 2 : 1), Vec2f(137,24), topLeft, healthBarLerp, 1.0f, SColor(255,255,255,255));
 		GUI::DrawIcon("BossHealthBar.png", 0, Vec2f(137,24), topLeft);
 
 		// draw boss icon
@@ -122,6 +126,9 @@ void onTick(CRules@ this)
 	CBlob@ blob = getBlobByNetworkID(bossNetID);
 	CCamera@ camera = getCamera();
 	if (camera is null) return;
+
+	// do not focus camera when morphed into a lorde bison
+	if (blob !is null && blob.isMyPlayer()) return;
 
 	if (bossFollowTime >= getGameTime()) 
 	{

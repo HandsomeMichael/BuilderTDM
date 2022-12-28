@@ -107,10 +107,7 @@ bool IsSpawning(CBlob@ this) {
 }
 
 void onTick(CBlob@ this)
-{
-	// untag blob 
-	if (this.hasTag("justGotHit")) this.Untag("justGotHit");
-	
+{	
 	// do nothing when spawned
 	u8 state = this.get_u8(state_property);
 	if (state == STATE_SPAWNED) return;
@@ -169,7 +166,6 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	// no damage on spawn
 	if (IsSpawning(this)) return 0.0f;
 
-	ScriptBoss_BossHit(this);
 	MadAt(this, hitterBlob);
 
 	return damage;
@@ -179,7 +175,7 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
 	// no collison on spawn
 	if (IsSpawning(this)) return false;
-	return !blob.hasTag("dead");
+	return !blob.hasTag("dead") && !blob.hasTag("invincible");
 }
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1)
