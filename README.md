@@ -21,9 +21,10 @@ there is 3 main class :
 
   i didnt work on this yet, so i maybe like spawn trap or something
 
+there is also epic bison boss :
 
+![KagBisonBoss](https://user-images.githubusercontent.com/70310191/209674754-b8dfc65e-7cba-4b2d-be6e-4539f28319ed.gif)
 
-
-
+all of these things are WIP , although still fun to play
 
 Warning : my code is spaghetti
