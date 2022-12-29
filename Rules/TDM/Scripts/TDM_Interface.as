@@ -130,6 +130,5 @@ void onRender(CRules@ this)
 	}
 
 	// render boss health bar and such
-	ScriptBoss_Effects(this,boss);
 	ScriptBoss_RenderBossUI(this,boss);
 }

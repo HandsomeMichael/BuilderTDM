@@ -11,9 +11,9 @@ void CreateRestock(CBlob@ restocker,Vec2f pos, int resettime,int woodCount = 0,i
 
 	if (parachute) crate.Tag("parachute");
 
-	if (woodCount > 0) {MakeMatInside(restocker,"mat_wood",woodCount);}
-	if (stoneCount > 0) {MakeMatInside(restocker,"mat_stone",stoneCount);}
-	if (goldCount > 0) {MakeMatInside(restocker,"mat_gold",goldCount);}
+	if (woodCount > 0) {MakeMatInside(crate,"mat_wood",woodCount);}
+	if (stoneCount > 0) {MakeMatInside(crate,"mat_stone",stoneCount);}
+	if (goldCount > 0) {MakeMatInside(crate,"mat_gold",goldCount);}
 }
 
 void MakeMatInside(CBlob@ this,string matname,int count) 
@@ -26,8 +26,6 @@ void MakeMatInside(CBlob@ this,string matname,int count)
 		mat.Init();
 		mat.server_SetQuantity(count);
 		this.server_PutInInventory(mat);
-
-		print("test");
 	}
 }
 

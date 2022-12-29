@@ -51,13 +51,25 @@ void onTick(CBlob@ this)
 		// add tags for waiting and unpacking
 		this.Tag("wait");
 
+		bool parachute = true;
+		Vec2f pos = this.getPosition();
+		getMap().rayCastSolidNoBlobs(this.getPosition(), Vec2f(this.getPosition().x,0), pos);
+
+		// if less than 10 block distance then just drop it on the ruins directly
+		float dist = (this.getPosition().y - pos.y);
+		if (dist < 160 && pos.y != 0) {
+			pos = this.getPosition();
+			parachute = false;
+		}
+
+		// parachuted crate give more material
 		CreateRestock(this,
-		this.getPosition(), // pos
+		pos, // pos
 		1500, // delay
-		XORRandom(250) + 250 , // wood count
-		XORRandom(125) + 125, // stone count
-		XORRandom(25) + 10, // gold count
-		false); // parachute
+		XORRandom(250) + (parachute ? 300 : 250) , // wood count
+		XORRandom(125) + (parachute ? 150 : 125), // stone count
+		XORRandom(25) + (parachute ? 15 : 10), // gold count
+		parachute); // parachute
 	}
 }
 

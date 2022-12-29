@@ -28,27 +28,6 @@ void ScriptBoss_SetBoss(CBlob@ blob , int time) {
 	getRules().set_u32("bossFollowTime",getGameTime() + time);
 }
 
-// draw some darkening effects
-float effectLerp = 0.0f;
-
-void ScriptBoss_Effects(CRules@ this,CBlob@ blob) {
-
-	// reset if null
-	if (blob is null) {
-		effectLerp = 0.0f;
-		return;
-	}
-
-	// do some darkening idk
-
-	// TO DO : get a life , make money , go outside
-
-	Driver@ driver = getDriver();
-	effectLerp = Maths::Lerp(effectLerp,100.0f,0.1f);
-	Vec2f screenSize(driver.getScreenWidth(), driver.getScreenHeight());
-	GUI::DrawRectangle(Vec2f(0, 0), screenSize, SColor(Maths::Round(effectLerp), 255, 8, 0));
-}
-
 // reset ui property
 void ResetHealthBar() {
 	healthBarLerp = 0.0f;

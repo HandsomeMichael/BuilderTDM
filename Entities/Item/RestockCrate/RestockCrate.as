@@ -9,7 +9,7 @@
 void ShowParachute(CBlob@ this)
 {
 	CSprite@ sprite = this.getSprite();
-	CSpriteLayer@ parachute = sprite.addSpriteLayer("parachute",   32, 32);
+	CSpriteLayer@ parachute = sprite.addSpriteLayer("parachute", "Crate.png", 32, 32);
 
 	if (parachute !is null)
 	{
@@ -70,7 +70,8 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob){
 	return (this.getName() == blob.getName()) || ((blob.getShape().isStatic() || blob.hasTag("player") || blob.hasTag("projectile")) && !blob.hasTag("parachute"));
 }
 
-bool canBePickedUp(CBlob@ this, CBlob@ byBlob) { return false; }
+bool isInventoryAccessible(CBlob@ this, CBlob@ forBlob){return false;}
+bool canBePickedUp(CBlob@ this, CBlob@ byBlob){return false;}
 
 void DumpOutItems(CBlob@ this, float pop_out_speed = 5.0f)
 {

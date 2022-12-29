@@ -35,13 +35,13 @@ void LoadSprites(CSprite@ this)
 
 			if (player.getUsername() == "Atheon" || player.getUsername() == "TFlippy" || player.getUsername() == "Guift" || player.getUsername() == "SkinnyBoy") 
 			{
-				ensureCorrectRunnerTexture(this, "enginer_skinny", "Stikmen");
+				ensureCorrectRunnerTexture(this, "trapmaster_skinny", "Stikmen");
 				return;
 			}
 		}
 	}
 
-	ensureCorrectRunnerTexture(this, "enginer", "Enginer");
+	ensureCorrectRunnerTexture(this, "trapmaster", "TrapMaster");
 
 }
 
@@ -265,6 +265,22 @@ void onRender(CSprite@ this)
 	if (head !is null) {
 		head.ResetTransform();
 		head.RotateByDegrees(-mouseAngle,Vec2f(0,4));
+	}
+
+	//VV right here VV
+
+	Vec2f pos2d = blob.getScreenPos() + Vec2f(0, 20);
+	Vec2f dim = Vec2f(24, 8);
+	const f32 y = blob.getHeight() * 2.4f;
+	const f32 exp = blob.get_u8("exhaustedPoint");
+	if (exp > 5.0f)
+	{
+		const f32 perc = exp / 255.0f;
+		if (perc >= 0.0f)
+		{
+			GUI::DrawRectangle(Vec2f(pos2d.x - dim.x - 2, pos2d.y + y - 2), Vec2f(pos2d.x + dim.x + 2, pos2d.y + y + dim.y + 2));
+			GUI::DrawRectangle(Vec2f(pos2d.x - dim.x + 2, pos2d.y + y + 2), Vec2f(pos2d.x - dim.x + perc * 2.0f * dim.x - 2, pos2d.y + y + dim.y - 2), SColor(0xffac1512));
+		}
 	}
 
 	// it would be funny if instead of rotating sprite. we rotate the blob :troll:
