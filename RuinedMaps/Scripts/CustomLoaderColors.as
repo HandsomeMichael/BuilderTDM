@@ -1,9 +1,6 @@
-// edited LoaderColors.as
+// Custom loader colors "script"
 
-// idk how this alpha works , all i hope is that it work well. hopefully
-// i stole the color from kaww since i dont know how to convert rgba into foking whatever that is
-
-namespace custom_map_colors 
+namespace custom_map_colors
 {
 	enum color
 	{

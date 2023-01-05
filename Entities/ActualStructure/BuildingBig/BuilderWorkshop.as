@@ -1,4 +1,5 @@
-// BuilderShop.as
+// BuilderWorkshop.as
+// Script by TFlhyotaGaming69
 
 #include "Requirements.as"
 #include "ShopCommon.as"
@@ -9,6 +10,10 @@
 #include "TeamIconToken.as"
 #include "RestockCommon.as"
 #include "TradingCommon.as"
+
+
+// TO DO : fix all this shop mess and try to make builder workshop able to stack restock 4 at max
+// PLANS : make restock available at shop but 50 % more expensive
 
 void onInit(CBlob@ this)
 {
@@ -167,7 +172,7 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 		this.getCommandID("sell_blob"), 								// command
 		"Sell "+carried.getInventoryName()+" for "+price+ " coins", params);	// description
 		// from shop.as
-		button.enableRadius = 20;
+		button.enableRadius = 50;
 	}
 }
 

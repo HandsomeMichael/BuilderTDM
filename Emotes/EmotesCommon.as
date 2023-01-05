@@ -1,3 +1,5 @@
+// Patch : added "stuff"
+
 //handy dandy frame lookup
 namespace Emotes
 {
@@ -59,6 +61,13 @@ namespace Emotes
 		rat,
 		dismayed,  //50
 
+		// NO WAY CUSTOM EMOTES WTFFFF !!!???!!!??
+
+		atheon,
+		wood,
+		stone,
+		cum,
+
 
 		emotes_total,
 		off
@@ -116,7 +125,14 @@ namespace Emotes
 		"mine",
 		"sorry",
 		"rat",
-		"dismayed"
+		"dismayed",
+
+		// NO WAY CUSTOM EMOTES WTFFFF !!!???!!!??
+
+		"atheon",
+		"wood",
+		"stone",
+		"cum"
 	};
 }
 
@@ -146,6 +162,9 @@ void set_emote(CBlob@ this, u8 emote, int time)
 		{
 			// only for king ( me ) :sunglasses:
 			if (this.hasTag("king") || player.getUsername() == "Chyota") {
+
+				// note to my dearest self : learn how to use switch case
+
 				if (emote == Emotes::builder) {this.getSprite().PlaySound("WaltuhBuild.ogg");}
 				if (emote == Emotes::knight) {this.getSprite().PlaySound("WaltuhGenocide.ogg");}
 				if (emote == Emotes::archer) {this.getSprite().PlaySound("WaltuhProjectiles.ogg");}

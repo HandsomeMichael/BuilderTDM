@@ -4,6 +4,8 @@ Builder TDM is a King Arthur's Gold mod with kinda like random stuff and boss
 
 tdm gamemode doesnt have builder that make fight morr epic and super long rat battle , so i did that
 
+this mod also has a ground and mind breaking shattering erupting flattering and bloberring innovative feature ( 1 new custom emote )
+
 there is 3 main class :
 
 - ![image](https://user-images.githubusercontent.com/70310191/209602787-1b5bb277-f9b2-4d2a-bc13-c247505b4c88.png) **Builder**

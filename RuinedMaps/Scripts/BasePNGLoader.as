@@ -1,16 +1,14 @@
-
-
-
-// Patch : added custom workshops. 
-// Note : maybe move this to HandleCustomTile hook
-
 // BasePNGLoader.as
 // NSFL if you don't unzoom it out in your editor
 
 // Note for modders upgrading their mod, handlePixel's signature has changed recently!
 
+// Patch : Added new building and why kag doesnt just put PNGLoader reference in handlecustomblock it would avoid me having to edit this huge script that can change at anytime
+
+// jump at line 415 for the actual changes
+
+#include "CustomLoaderColors.as"; // custom stuff
 #include "LoaderColors.as";
-#include "CustomLoaderColors.as"; // my custom loader colors :)
 #include "LoaderUtilities.as";
 #include "CustomBlocks.as";
 
@@ -367,10 +365,6 @@ class PNGLoader
 			case map_colors::alpha_chest:
 			case map_colors::chest:       autotile(offset); spawnBlob(map, "chest",   offset); break;
 
-			// CUSTOM STUFF, BUILDER TDM
-			case custom_map_colors::blue_builderworkshop:	autotile(offset); spawnBlob(map, "builderworkshop", offset,0); break;
-			case custom_map_colors::red_builderworkshop:	autotile(offset); spawnBlob(map, "builderworkshop", offset,1); break;
-
 			// Food
 			case map_colors::steak:       autotile(offset); spawnBlob(map, "steak", offset); break;
 			case map_colors::burger:      autotile(offset); spawnBlob(map, "food",  offset); break;
@@ -417,6 +411,11 @@ class PNGLoader
 			case map_colors::mook_spawner:    autotile(offset); AddMarker(map, offset, "mook spawner"); break;
 			case map_colors::mook_spawner_10: autotile(offset); AddMarker(map, offset, "mook spawner 10"); break;
 			case map_colors::dummy:           autotile(offset); spawnBlob(map, "dummy", offset, 1, true); break;
+
+			// WTFF CUSTOM BUILDING WTFFF ???!!!???
+			case custom_map_colors::blue_builderworkshop:	autotile(offset); spawnBlob(map, "builderworkshop", offset,0); break;
+			case custom_map_colors::red_builderworkshop:	autotile(offset); spawnBlob(map, "builderworkshop", offset,1); break;
+
 			default:
 				HandleCustomTile( map, offset, pixel );
 			};

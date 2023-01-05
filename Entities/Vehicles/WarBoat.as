@@ -70,7 +70,7 @@ void onInit(CBlob@ this)
 	//	this.getShape().AddShape( shape );
 	//}
 
-	//front bits
+	//front bits , NO WAY FUNNY NUMBER !!!???!!!
 	{
 		Vec2f[] shape = { Vec2f(43.0f,  4.0f) - pos_off,
 		                  Vec2f(73.0f,  7.0f) - pos_off,
