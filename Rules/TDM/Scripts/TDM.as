@@ -158,6 +158,10 @@ shared class TDMSpawns : RespawnSystem
 			playerBlob.server_SetPlayer(player);
 			player.server_setTeamNum(p_info.team);
 
+			GiveMats(playerBlob,"mat_wood",350);
+			GiveMats(playerBlob,"mat_stone",60);
+			// GiveMats(blob,"mat_gold",5);
+
 			// i am immune to your hits , hehehehaw
 			if (p_info.customImmunityTime >= 0){
 				playerBlob.set_u32("custom immunity time", p_info.customImmunityTime);
@@ -281,6 +285,19 @@ shared class TDMSpawns : RespawnSystem
 		return false;
 	}
 
+	void GiveMats(CBlob@ blob,const string &in name, const int quantity) {
+
+		CBlob@ mat = server_CreateBlobNoInit(name);
+	
+		if (mat !is null){
+			mat.Tag('custom quantity');
+			mat.Init();
+			mat.server_SetQuantity(quantity);
+			
+			if (!blob.server_PutInInventory(mat)){mat.setPosition(blob.getPosition());}
+		}
+	}
+
 };
 
 shared class TDMCore : RulesCore
@@ -369,7 +386,7 @@ shared class TDMCore : RulesCore
 		{
 			gametime = getGameTime() + warmUpTime;
 			rules.set_u32("game_end_time", gametime + gameDuration);
-			rules.SetGlobalMessage("Not enough players in each team for the game to start.\nPlease wait for someone to join...");
+			rules.SetGlobalMessage("Not enough players in for the game to start.\nTry doing something funny while waiting ...");
 			tdm_spawns.force = true;
 		}
 		else if (rules.isMatchRunning())
@@ -518,24 +535,23 @@ shared class TDMCore : RulesCore
 		}
 	}
 
-	void onSetPlayer(CBlob@ blob, CPlayer@ player)
-	{
-		if (blob !is null && player !is null)
-		{
-			GiveSpawnResources(blob, player);
-		}
-	}
+	// this hook run when changing class , so its bad
+
+	// void onSetPlayer(CBlob@ blob, CPlayer@ player)
+	// {
+	// 	if (blob !is null && player !is null)
+	// 	{
+	// 		GiveSpawnResources(blob, player);
+	// 	}
+	// }
 
 	//setup the TDM bases
 
-	void SetupBase(CBlob@ base)
+	void SetupBase(string base_name ,int team , Vec2f respawnPos)
 	{
-		if (base is null)
-		{
-			return;
-		}
-
-		//nothing to do
+		// poo
+		server_CreateBlob("tdm_spawn", team, respawnPos);
+		server_CreateBlob("buildertable", team ,respawnPos);
 	}
 
 
@@ -565,7 +581,7 @@ shared class TDMCore : RulesCore
 				warn("TDM: Blue spawn marker not found on map");
 				respawnPos = Vec2f(150.0f, map.getLandYAtX(150.0f / map.tilesize) * map.tilesize - 32.0f);
 				respawnPos.y -= 16.0f;
-				SetupBase(server_CreateBlob(base_name, 0, respawnPos));
+				SetupBase(base_name, 0, respawnPos);
 			}
 			else
 			{
@@ -573,11 +589,10 @@ shared class TDMCore : RulesCore
 				{
 					respawnPos = respawnPositions[i];
 					respawnPos.y -= 16.0f;
-					SetupBase(server_CreateBlob(base_name, 0, respawnPos));
+					SetupBase(base_name, 0, respawnPos);
 				}
 			}
 
-			server_CreateBlob("buildertable",0,respawnPos);
 
 			respawnPositions.clear();
 
@@ -588,7 +603,7 @@ shared class TDMCore : RulesCore
 				warn("TDM: Red spawn marker not found on map");
 				respawnPos = Vec2f(map.tilemapwidth * map.tilesize - 150.0f, map.getLandYAtX(map.tilemapwidth - (150.0f / map.tilesize)) * map.tilesize - 32.0f);
 				respawnPos.y -= 16.0f;
-				SetupBase(server_CreateBlob(base_name, 1, respawnPos));
+				SetupBase(base_name, 1, respawnPos);
 			}
 			else
 			{
@@ -596,11 +611,9 @@ shared class TDMCore : RulesCore
 				{
 					respawnPos = respawnPositions[i];
 					respawnPos.y -= 16.0f;
-					SetupBase(server_CreateBlob(base_name, 1, respawnPos));
+					SetupBase(base_name, 1, respawnPos);
 				}
 			}
-
-			server_CreateBlob("buildertable",1,respawnPos);
 
 			respawnPositions.clear();
 		}
@@ -811,51 +824,6 @@ shared class TDMCore : RulesCore
 		}
 	}
 
-
-	void GiveSpawnResources(CBlob@ blob, CPlayer@ player)
-	{
-		// give builder starting mats
-		// first check if its in surroundings
-		CBlob@[] blobsInRadius;
-		CMap@ map = getMap();
-
-		bool foundWood = false;
-		bool foundStone = false;
-
-		if (map.getBlobsInRadius(blob.getPosition(), 60.0f, @blobsInRadius))
-		{
-			for (uint i = 0; i < blobsInRadius.length; i++)
-			{
-				CBlob @b = blobsInRadius[i];
-				if (b.getName() == "mat_stone") {
-					foundStone = true;
-					if (!foundStone){blob.server_PutInInventory(b);}
-					else{b.server_Die();}
-				}
-				if (b.getName() == "mat_wood"){
-					foundWood = true;
-					if (!foundWood){blob.server_PutInInventory(b);}
-					else{b.server_Die();}
-				}
-			}
-		}
-		// huge wood for treeless map
-		if (!foundWood){GiveMats(blob,"mat_wood",350);}
-		if (!foundStone){GiveMats(blob,"mat_stone",60);}
-		if (!foundStone){GiveMats(blob,"mat_gold",5);}
-	}
-	void GiveMats(CBlob@ blob,const string &in name, const int quantity) {
-
-		CBlob@ mat = server_CreateBlobNoInit(name);
-	
-		if (mat !is null){
-			mat.Tag('custom quantity');
-			mat.Init();
-			mat.server_SetQuantity(quantity);
-			
-			if (!blob.server_PutInInventory(mat)){mat.setPosition(blob.getPosition());}
-		}
-	}
 
 };
 

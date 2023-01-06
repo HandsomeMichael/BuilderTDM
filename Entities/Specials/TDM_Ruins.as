@@ -36,9 +36,6 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this)
 {
-	// dont drop any epic mats
-	if (this.hasTag("wait")) return;
-
 	if (getGameTime() >= this.get_u32("drop_mats"))
 	{
 		if (isClient() && this.getTeamNum() == getLocalPlayer().getTeamNum())
@@ -47,9 +44,6 @@ void onTick(CBlob@ this)
 		}
 
 		if (!isServer()) return; /////////////////////////////////// SERVER ONLY
-
-		// add tags for waiting and unpacking
-		this.Tag("wait");
 
 		bool parachute = true;
 		Vec2f pos = this.getPosition();
@@ -70,6 +64,9 @@ void onTick(CBlob@ this)
 		XORRandom(125) + (parachute ? 150 : 125), // stone count
 		XORRandom(25) + (parachute ? 15 : 10), // gold count
 		parachute); // parachute
+
+		// dont do tick script anymore
+		this.doTickScripts = false;
 	}
 }
 

@@ -31,17 +31,22 @@ void HideParachute(CBlob@ this)
 	}
 }
 
+CBlob@ GetRestocker(CBlob@ this) 
+{
+	// prevent error funny funky friday
+	u16 restockerID = this.get_netid("restockerID");
+	if (restockerID < 1) return null;
+
+	return getBlobByNetworkID(restockerID);
+}
 void ResetRestockerTimer(CBlob@ this) {
 
-	u16 restockerID = this.get_netid("restockerID");
-	if (restockerID > 0) 
+	CBlob@ restocker = GetRestocker(this);
+	if (restocker !is null) 
 	{
-		CBlob@ restocker = getBlobByNetworkID(restockerID);
-		if (restocker !is null) 
-		{
-			restocker.set_u32("drop_mats",getGameTime() + (this.get_u16("reset_time")));
-			restocker.Untag("wait");
-		}
+		restocker.doTickScripts = true;
+		restocker.set_u32("drop_mats",getGameTime() + (this.get_u16("reset_time")));
+		restocker.Untag("wait");
 	}
 }
 
@@ -60,8 +65,29 @@ void onTick(CBlob@ this)
 
 		if (this.isOnGround() || this.isInWater() || this.isAttached())
 		{
+			// unparachute the parachute
 			this.Untag("parachute");
 			HideParachute(this);
+
+			// remove tick script 
+			this.doTickScripts = false;
+
+			// set despawn time
+			if (this.exists("reset_time")) 
+			{
+				this.server_SetTimeToDie(this.get_u16("reset_time") * 2);
+			}
+			else 
+			{
+				this.server_SetTimeToDie(3600); // default to 1 minute
+			}
+
+			// do the funny
+			CBlob@ restocker = GetRestocker(this);
+			if (restocker !is null) 
+			{
+				restocker.Untag("RestockLanding");
+			}
 		}
 	}
 }

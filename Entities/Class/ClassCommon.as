@@ -484,12 +484,20 @@ void TempBlob_onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPo
 				this.set_TileType("buildtile", 0);
 
 				CInventory@ inv = this.getInventory();
-
 				CBitStream missing;
+
+				for(u8 i = 0; i < inv.getItemsCount(); i++) {
+
+				}
+
 				if (hasRequirements(inv, b.reqs, missing, not b.buildOnGround))
 				{
 					server_TakeRequirements(inv, b.reqs);
 				}
+				else {
+					// if doesnt have a requirement then we search for available inventories
+				}
+
 				// take out another one if in inventory
 				server_BuildBlob(this, blocks[PAGE], i);
 			}

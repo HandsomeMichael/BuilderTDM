@@ -105,15 +105,9 @@ void onRender(CSprite@ this){
 
 void onTick(CBlob@ this)
 {
-	// dont drop any epic mats
-	if (this.hasTag("wait")) return;
-
 	if (getGameTime() >= this.get_u32("drop_mats"))
 	{
 		//if (!isServer()) return; /////////////////////////////////// SERVER ONLY
-
-		// add tags for waiting and unpacking
-		this.Tag("wait");
 
 		bool parachute = true;
 		Vec2f pos = this.getPosition();
@@ -122,7 +116,6 @@ void onTick(CBlob@ this)
 		// if less than 10 block distance then just drop it on the ruins directly
 		float dist = (this.getPosition().y - pos.y);
 		if (dist < 160 && pos.y != 0) {
-
 			pos = this.getPosition();
 			parachute = false;
 		}
@@ -140,6 +133,9 @@ void onTick(CBlob@ this)
 
 		// wood
 		crate.getSprite().SetFrameIndex((stoneRestock ? 2 : 3));
+
+		//no more tick script
+		this.doTickScripts = false;
 	}
 }
 

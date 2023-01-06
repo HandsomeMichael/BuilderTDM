@@ -38,7 +38,7 @@ void onInit(CBlob@ this)
 
 	SetHelp(this, "help self action2", "builder", getTranslatedString("$Pick$Dig/Chop  $KEY_HOLD$$RMB$"), "", 3);
 
-	this.getCurrentScript().runFlags |= Script::tick_not_attached;
+	//this.getCurrentScript().runFlags |= Script::tick_not_attached;
 	this.getCurrentScript().removeIfTag = "dead";
 }
 
