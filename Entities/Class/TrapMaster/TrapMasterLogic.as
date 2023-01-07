@@ -144,8 +144,19 @@ void RegenerateExhaustedPoint(CBlob@ this)
 	Animation@ animation_strike = this.getSprite().getAnimation("strike");
 	if (animation_strike !is null) animation_strike.time = ((expf32 > 40) ? 1 : ((expf32 > 20) ? 2 : 3));
 
-	this.set_f32("hitdamage",0.125f + (expf32 / 255.0f) ); // hit damage is based on exhaust point
+	this.set_f32("hitdamage",0.125f + (expf32 / 255.0f) + (IsThisWoman(this) ? 0 : 0.15f)); // hit damage is based on exhaust point
 	this.Sync("hitdamage", true);
+}
+
+// woman
+bool IsThisWoman(CBlob@ this) {
+
+	CPlayer@ player = this.getPlayer();
+	if (player !is null) {
+		return (player.getSex() == 1); 
+	}
+
+	return false;
 }
 
 void AddExhausePoint(CBlob@ this,int point,int restoreTime = 60) {
@@ -206,8 +217,12 @@ void EditMovement(CBlob@ this) {
 		moveVars.walkFactor = 1.1f;
 		if (!this.isOnGround()) {
 			// fastest on water and on air
-			moveVars.walkFactor = 1.6f;
+			moveVars.walkFactor = 1.5f + (IsThisWoman(this) ? 0 : 0.1f);
 		}
+
+		// reduce speed if you are overheating
+		const f32 exp = this.get_u8("exhaustedPoint");
+		moveVars.walkFactor -= (exp / 255.0f);
 
 		if (this.isKeyPressed(key_action2)) 
 		{
@@ -219,7 +234,7 @@ void EditMovement(CBlob@ this) {
 			if (this.isOnGround())  {
 				if (this.getSprite().isFrameIndex(hit_frame)) {
 					moveVars.walkFactor = 2.0f;
-					AddExhausePoint(this,1);
+					AddExhausePoint(this,2);
 				}
 			}
 			this.Tag("prevent crouch");
@@ -317,7 +332,7 @@ bool RecdHitCommand(CBlob@ this, CBitStream@ params)
 			{
 				this.server_Hit(blob, tilepos, attackVel, attack_power, Hitters::builder, teamHurt);
 				Material::fromBlob(this, blob, attack_power);
-				AddExhausePoint(this,2);
+				AddExhausePoint(this,4);
 			}
 		}
 	}

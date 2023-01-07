@@ -15,6 +15,8 @@
 // TO DO : fix all this shop mess and try to make builder workshop able to stack restock 4 at max
 // PLANS : make restock available at shop but 50 % more expensive
 
+const u32 MATERIALDROPDELAY = 1000;
+
 void onInit(CBlob@ this)
 {
 	InitCosts(); //read from cfg
@@ -37,6 +39,9 @@ void onInit(CBlob@ this)
 
 	// sell stuff
 	this.addCommandID("sell_blob");
+
+	// drop mats
+	this.set_u32("drop_mats",getGameTime() + MATERIALDROPDELAY);
 
 	int team_num = this.getTeamNum();
 
@@ -125,7 +130,7 @@ void onTick(CBlob@ this)
 		// parachuted crate give more material
 		CBlob@ crate = CreateSmallRestock(this,
 		pos, // pos
-		1000, // delay
+		MATERIALDROPDELAY, // delay
 		(stoneRestock ? 0 : 100) , // wood count
 		(stoneRestock ? 50 : 0), // stone count
 		0, // gold count

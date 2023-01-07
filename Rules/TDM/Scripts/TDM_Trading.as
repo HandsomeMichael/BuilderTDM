@@ -212,7 +212,7 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ killer, u8 customData)
 
 f32 onPlayerTakeDamage(CRules@ this, CPlayer@ victim, CPlayer@ attacker, f32 DamageScale)
 {
-	if (!getNet().isServer())
+	if (!isServer())
 		return DamageScale;
 
 	if (attacker !is null && attacker !is victim)

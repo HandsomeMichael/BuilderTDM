@@ -230,9 +230,9 @@ void onTick(CMovement@ this)
 	// dark soul dodge roll - completely overrides other movement 
 	if (blob.hasTag("dodgeroll")) {return;}
 
+	// dodge roll gives 10 ( and 10 extra for animation ) i-frames. it has 60 second delay
 	CControls@ control = blob.getControls();
-
-	if ( control !is null)
+	if (control !is null && !isknocked)
 	{
 		// my left shift key broke so i use left control
 		if (control.isKeyJustPressed(KEY_LCONTROL) && getGameTime() >= blob.get_u32("dodgeroll_time"))
@@ -249,10 +249,10 @@ void onTick(CMovement@ this)
 			// and i'm too lazy to do custom stuff on it
 			blob.set_u32("custom immunity time", blob.getTickSinceCreated() + 10);
 			blob.Tag("invincible");
-			blob.Untag("flesh"); // to prevent spikes , yes spikes ignore invincible tag :skull:
+			if (blob.hasTag("flesh")) blob.Untag("flesh"); // to prevent spikes , yes spikes ignore invincible tag :skull:
 
-			blob.set_f32("dodgeAngle",blob.getAngleDegrees() + (left ? -360 : 360 ));
-			blob.set_bool("dodgeDirectionLeft",dodgeDirectionLeft);
+			//blob.set_f32("dodgeAngle",blob.getAngleDegrees() + (left ? -360 : 360 ));
+			//blob.set_bool("dodgeDirectionLeft",dodgeDirectionLeft);
 
 			// more force on ground
 			if (blob.isOnGround() && !blob.isInWater()) {

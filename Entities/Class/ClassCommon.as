@@ -29,18 +29,21 @@ void RotateBodyByVelocity(CBlob@ this) {
 
 		// untag earlier after dodgeroll
 		if ((getGameTime() + 40) >= this.get_u32("dodgeroll_time")) {
+
 			this.Untag("dodgeroll");
 			this.Untag("invincible");
-			this.Tag("flesh");
+			this.Tag("flesh"); // yes
 			// reset the angle so it doesnt rotate again
 			this.setAngleDegrees(0);
 		}
 
+		// dont do the code below
 		return;
 	}
-	// kinda become like terraria overhaul
+	// kinda become like terraria overhaul , i hope mirsario will make another epic mod for kag someday
 	f32 xFactor =  (Maths::Clamp(this.getVelocity().x, -3.0f, 3.0f) / 3.0f) * (this.isInWater() ? 150.0f : 30.0f);
-	this.setAngleDegrees(Utils::LerpAngleDegree(this.getAngleDegrees(), xFactor, 0.3f));
+	this.setAngleDegrees(Utils::LerpAngleDegree(this.getAngleDegrees(), xFactor, 0.3f)); 
+	// incase the angle got wooble up , we do custom 'radian angle linear interpolation' thingy
 }
 
 // armor half the damage you took but loss its durability overtime
@@ -483,20 +486,39 @@ void TempBlob_onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPo
 				this.set_u8("buildblob", 255);
 				this.set_TileType("buildtile", 0);
 
-				CInventory@ inv = this.getInventory();
+				CInventory@ playerInv = this.getInventory();
 				CBitStream missing;
 
-				for(u8 i = 0; i < inv.getItemsCount(); i++) {
-
-				}
-
-				if (hasRequirements(inv, b.reqs, missing, not b.buildOnGround))
+				if (hasRequirements(playerInv, b.reqs, missing, not b.buildOnGround))
 				{
-					server_TakeRequirements(inv, b.reqs);
+					server_TakeRequirements(playerInv, b.reqs);
 				}
-				else {
-					// if doesnt have a requirement then we search for available inventories
-				}
+
+				// for later
+
+				// else 
+				// {
+				// 	// if doesnt have a requirement then we search for available inventories
+				// 	CBlob@[] blobList;
+				// 	getMap().getBlobsInRadius(this.getPosition(), 100, blobList);
+				// 	for (u16 i = 0; i < blobList.length; i++) 
+				// 	{
+				// 		// check blob existance
+				// 		CBlob@ invBlob = blobList[i];
+				// 		if (invBlob is null || invBlob.hasTag("dead")) continue;
+				// 		if (invBlob.getTeamNum() != this.getTeamNum()) continue;
+				// 		// check blob inventory
+				// 		CInventory@ inv = invBlob.getInventory();
+				// 		if (inv is null) continue;
+				// 		// check if it has the requirement
+				// 		if (hasRequirements(inv, b.reqs, missing, not b.buildOnGround))
+				// 		{
+				// 			// take requirement and break the loop
+				// 			server_TakeRequirements(inv, b.reqs);
+				// 			break;
+				// 		}
+				// 	}
+				// }
 
 				// take out another one if in inventory
 				server_BuildBlob(this, blocks[PAGE], i);
